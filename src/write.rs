@@ -1,10 +1,7 @@
 use color_eyre::{eyre::WrapErr, owo_colors::OwoColorize, Result};
 use edit::{edit_file, Builder};
 use std::path::PathBuf;
-use std::{
-    fs,
-    io::{Read, Seek, SeekFrom, Write},
-};
+use std::{fs, io::Write};
 
 const TEMPLATE: &[u8; 2] = b"# ";
 
@@ -18,9 +15,7 @@ pub fn write(garden_path: PathBuf, title: Option<String>) -> Result<()> {
         .wrap_err("Failed to keep temp file")?;
     file.write_all(TEMPLATE)?;
     edit_file(&filepath)?;
-    let mut contents = String::new();
-    file.seek(SeekFrom::Start(0))?;
-    file.read_to_string(&mut contents)?;
+    let contents = fs::read_to_string(&filepath)?;
     dbg!(&contents);
     let document_title = title.or_else(|| {
         contents
@@ -84,6 +79,6 @@ Do you want a different title? (y/n): ",
             _ => {
                 // don't break, ask again
             }
-        }
+        };
     }
 }
